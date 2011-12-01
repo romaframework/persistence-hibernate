@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="HibernatePersistenceModule" class="org.romaframework.aspect.persistence.hibernate.HibernatePersistenceModule"
+		singleton="true">
+	</bean>
+
+	<bean id="PersistenceAspect" class="org.romaframework.aspect.persistence.hibernate.jpa.JPAAtomicPersistenceAspect"
+		singleton="true">
+		<constructor-arg ref="HibernatePersistenceModule" />
+	</bean>
+
+	<bean id="TxPersistenceAspect" class="org.romaframework.aspect.persistence.hibernate.jpa.JPATxPersistenceAspect"
+		singleton="false">
+		<constructor-arg ref="HibernatePersistenceModule" />
+	</bean>
+
+	<bean id="NoTxPersistenceAspect" class="org.romaframework.aspect.persistence.hibernate.jpa.JPANoTxPersistenceAspect"
+		singleton="false">
+		<constructor-arg ref="HibernatePersistenceModule" />
+	</bean>
+
+</beans>

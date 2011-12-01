@@ -1,0 +1,22 @@
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="org.romaframework" module="roma-persistence-hibernate" revision="2.9" />
+	<configurations defaultconfmapping="*->*,!sources,!javadoc,!optional">
+		<conf name="test" />
+		<conf name="wizard" />
+	</configurations>
+	<publications>
+		<artifact name="roma-persistence-hibernate" ext="jar" type="jar"></artifact>
+		<artifact name="roma-persistence-hibernate-test" ext="jar" type="jar" conf="test"></artifact>
+		<artifact name="roma-persistence-hibernate-wizard" ext="zip" type="zip" conf="wizard"></artifact>
+	</publications>
+	<dependencies>
+		<dependency org="org.romaframework" name="roma-core" rev="latest.integration" />
+		<dependency org="org.hibernate" name="hibernate-core" rev="latest.integration" conf="*->compile" >
+		</dependency>
+		<dependency org="org.hibernate" name="hibernate-entitymanager" rev="latest.integration">
+		</dependency>
+		<dependency org="org.hibernate" name="hibernate-annotations" rev="latest.integration" conf="*->compile"  >
+		</dependency>
+	</dependencies>
+</ivy-module>
