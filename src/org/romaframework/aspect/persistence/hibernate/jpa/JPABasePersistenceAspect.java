@@ -38,22 +38,32 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 		return null;
 	}
 
-	public <T> T loadObject(T iObject, String iMode) throws PersistenceException {
-		return loadObject(iObject, iMode, PersistenceAspect.STRATEGY_DETACHING);
+	public <T> T refreshObject(T iObject, String iMode) throws PersistenceException {
+		return refreshObject(iObject, iMode, PersistenceAspect.STRATEGY_DETACHING);
 	}
 
-	public <T> T loadObject(T iObject, String iMode, byte iStrategy) throws PersistenceException {
+	public <T> T refreshObject(T iObject, String iMode, byte iStrategy) throws PersistenceException {
 		return iObject;
 	}
 
 	public <T> T loadObjectByOID(String iOID, String iMode) throws PersistenceException {
-		// TODO Auto-generated method stub
-		return null;
+		return loadObjectByOID(iOID, iMode, PersistenceAspect.STRATEGY_DETACHING);
 	}
 
 	public <T> T loadObjectByOID(String iOID, String iMode, byte iStrategy) throws PersistenceException {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public <T> T loadObjectByOID(Class<T> clazz, Object id) throws PersistenceException {
+		return loadObjectByOID(clazz, id, null);
+	}
+
+	public <T> T loadObjectByOID(Class<T> clazz, Object id, String iMode) throws PersistenceException {
+		return loadObjectByOID(clazz, id, iMode, PersistenceAspect.STRATEGY_DETACHING);
+	}
+
+	public <T> T loadObjectByOID(Class<T> clazz, Object id, String iMode, byte iStrategy) throws PersistenceException {
+		return getEntityManager().find(clazz, id);
 	}
 
 	public <T> T createObject(T iObject) throws PersistenceException {
