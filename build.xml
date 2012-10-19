@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="compile" name="roma-persistence-hibernate">
-	<get src="https://github.com/romaframework/core/raw/master/roma-build.xml" dest="roma-build.xml" skipexisting="true" />
-	<import file="roma-build.xml" />
-</project>
