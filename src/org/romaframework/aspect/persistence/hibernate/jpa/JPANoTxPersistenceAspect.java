@@ -30,8 +30,6 @@ public class JPANoTxPersistenceAspect extends JPABasePersistenceAspect {
 
 	@Override
 	protected void closeOperation(EntityManager iManager) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void commit() {
