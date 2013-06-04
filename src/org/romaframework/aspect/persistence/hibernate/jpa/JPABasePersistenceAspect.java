@@ -3,6 +3,8 @@ package org.romaframework.aspect.persistence.hibernate.jpa;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.ManagedType;
 
 import org.romaframework.aspect.persistence.PersistenceAspect;
 import org.romaframework.aspect.persistence.PersistenceAspectAbstract;
@@ -12,6 +14,7 @@ import org.romaframework.aspect.persistence.QueryByExample;
 import org.romaframework.aspect.persistence.QueryByFilter;
 import org.romaframework.aspect.persistence.QueryByText;
 import org.romaframework.aspect.persistence.hibernate.HibernatePersistenceModule;
+import org.romaframework.core.Roma;
 import org.romaframework.core.schema.SchemaField;
 
 public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract {
@@ -34,8 +37,7 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	public abstract EntityManager getEntityManager();
 
 	public String getOID(Object iObject) throws PersistenceException {
-		// TODO Auto-generated method stub
-		return null;
+		return iObject.getClass().toString()+module.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(iObject).toString();
 	}
 
 	public <T> T refreshObject(T iObject, String iMode) throws PersistenceException {
@@ -50,8 +52,9 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 		return loadObjectByOID(iOID, iMode, PersistenceAspect.STRATEGY_DETACHING);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T loadObjectByOID(String iOID, String iMode, byte iStrategy) throws PersistenceException {
-		return null;
+		return (T)getEntityManager().find(getClassFromOid(iOID), getIdFromOid(iOID));
 	}
 
 	public <T> T loadObjectByOID(Class<T> clazz, Object id) throws PersistenceException {
@@ -86,23 +89,24 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	}
 
 	public Object[] updateObjects(Object[] iObjects) throws PersistenceException {
-		// TODO Auto-generated method stub
-		return null;
+		return updateObjects(iObjects,STRATEGY_DETACHING);
 	}
 
 	public Object[] updateObjects(Object[] iObjects, byte iStrategy) throws PersistenceException {
-		// TODO Auto-generated method stub
-		return null;
+		for(int i =0;i<iObjects.length;i++){
+			iObjects[i]=updateObject(iObjects[i],iStrategy);
+		}
+		return iObjects;
 	}
 
 	public void deleteObject(Object iObject) throws PersistenceException {
-		// TODO Auto-generated method stub
-
+		getEntityManager().remove(iObject);
 	}
 
 	public void deleteObjects(Object[] iObjects) throws PersistenceException {
-		// TODO Auto-generated method stub
-
+		for (Object object : iObjects) {
+			deleteObject(object);
+		}
 	}
 
 	public <T> List<T> query(Query iQuery) throws PersistenceException {
@@ -166,28 +170,37 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	}
 
 	public boolean isObjectLocallyModified(Object iObject) throws PersistenceException {
-		// TODO Auto-generated method stub
+		//((Session)getEntityManager().getDelegate()).is
+		//TODO:
 		return false;
 	}
 
 	public boolean isObjectPersistent(Object iObject) throws PersistenceException {
-		// TODO Auto-generated method stub
-		return false;
+		return getEntityManager().contains(iObject);
 	}
 
 	public boolean isClassPersistent(Class<?> iClass) {
-		// TODO Auto-generated method stub
+		for(ManagedType<?> type : getEntityManager().getMetamodel().getManagedTypes()){
+			if(type.getJavaType().equals(iClass))return true;
+		}
 		return false;
 	}
 
 	public boolean isFieldPersistent(Class<?> iClass, String iFieldName) {
-		// TODO Auto-generated method stub
+		for(ManagedType<?> type : getEntityManager().getMetamodel().getManagedTypes()){
+			if(type.getJavaType().equals(iClass)){
+				for(Attribute<?, ?> att:  type.getAttributes()){
+					if(att.getName().equals(iFieldName))
+						return true;
+				}
+				return false;
+			}
+		}
 		return false;
 	}
 
 	public boolean isFieldPersistent(SchemaField iField) {
-		// TODO Auto-generated method stub
-		return false;
+		return isFieldPersistent((Class<?>)iField.getType().getSchemaClass().getLanguageType(), iField.getName());
 	}
 
 	public void setObjectDirty(Object iObject, String iFieldName) {
@@ -196,8 +209,7 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	}
 
 	public byte getStrategy() {
-		// TODO Auto-generated method stub
-		return 0;
+		return STRATEGY_DETACHING;
 	}
 
 	public byte getTxMode() {
@@ -206,8 +218,6 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	}
 
 	public void setTxMode(byte txMode) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public boolean isActive() {
@@ -227,8 +237,7 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	}
 
 	public Object getUnderlyingComponent() {
-		// TODO Auto-generated method stub
-		return null;
+		return getEntityManager();
 	}
 
 	public HibernatePersistenceModule getModule() {
@@ -238,4 +247,14 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 	public void setModule(HibernatePersistenceModule module) {
 		this.module = module;
 	}
+	
+	private Class<?> getClassFromOid(String oid){
+		String className = oid.substring(0,oid.indexOf('@'));
+		return (Class<?>)Roma.schema().getSchemaClass(className).getLanguageType();
+	}
+	
+	private Object getIdFromOid(String oid){
+		return Long.valueOf(oid.substring(0,oid.indexOf('@')+1));
+	}
+	
 }

@@ -21,6 +21,7 @@ import org.hibernate.ejb.EntityManagerImpl;
 import org.romaframework.aspect.persistence.QueryByExample;
 import org.romaframework.aspect.persistence.QueryByFilter;
 import org.romaframework.aspect.persistence.QueryByFilterItem;
+import org.romaframework.aspect.persistence.QueryByFilterItemGroup;
 import org.romaframework.aspect.persistence.QueryByFilterItemPredicate;
 import org.romaframework.aspect.persistence.QueryByFilterOrder;
 import org.romaframework.aspect.persistence.QueryByText;
@@ -111,11 +112,42 @@ public class JPAPersistenceHelper {
 	}
 
 	private static Criterion createCriterion(QueryByFilterItem filter) {
+		if(filter instanceof QueryByFilterItemPredicate){
 		QueryByFilterItemPredicate item = (QueryByFilterItemPredicate) filter;
-		if (QueryByFilter.FIELD_LIKE.equals(item.getFieldOperator())) {
-			return Restrictions.like(item.getFieldName(), item.getFieldValue()+"%");
+			switch(item.getFieldOperator() ){
+				case CONTAINS:
+					return null;
+				case EQUALS:
+					return Restrictions.eq(item.getFieldName(), item.getFieldValue());
+				case NOT_EQUALS:
+					return Restrictions.not(Restrictions.eq(item.getFieldName(), item.getFieldValue()));
+				case LIKE:
+					return Restrictions.like(item.getFieldName(), item.getFieldValue());
+				case MAJOR:
+					return Restrictions.gt(item.getFieldName(), item.getFieldValue());
+				case MAJOR_EQUALS:
+					return Restrictions.ge(item.getFieldName(), item.getFieldValue());
+				case MINOR:
+					return Restrictions.lt(item.getFieldName(), item.getFieldValue());
+				case MINOR_EQUALS:
+					return Restrictions.le(item.getFieldName(), item.getFieldValue());
+				case IN:
+					return Restrictions.in(item.getFieldName(), (Collection<?>)item.getFieldValue());
+				case NOT_IN:
+					return Restrictions.not(Restrictions.in(item.getFieldName(), (Collection<?>)item.getFieldValue()));
+			}
+		} else if (filter instanceof QueryByFilterItemGroup){
+			QueryByFilterItemGroup group = (QueryByFilterItemGroup)filter;
+			Criterion[] criterios = new Criterion[group.getItems().size()];
+			for (int i = 0;i<group.getItems().size();i++) {
+				criterios[i]=createCriterion(group.getItems().get(i));
+			}
+			if(QueryByFilterItemGroup.PREDICATE_AND.equals(group.getPredicate()))
+				return Restrictions.and(criterios);
+			else if(QueryByFilterItemGroup.PREDICATE_OR.equals(group.getPredicate()))
+				return Restrictions.or(criterios);
 		}
-		return Restrictions.eq(item.getFieldName(), item.getFieldValue());
+		return null;
 	}
 
 	protected static QueryByFilter buildQueryByFilter(QueryByExample iQuery) {
