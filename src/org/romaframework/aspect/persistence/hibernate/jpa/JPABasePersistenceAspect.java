@@ -75,7 +75,6 @@ public abstract class JPABasePersistenceAspect extends PersistenceAspectAbstract
 
 	public <T> T createObject(T iObject, byte iStrategy) throws PersistenceException {
 		getEntityManager().persist(iObject);
-		getEntityManager().refresh(iObject);
 		return iObject;
 
 	}

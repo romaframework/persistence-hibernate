@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="no" default-dependency-check="none"
+	default-lazy-init="false">
+	<bean autowire="default"
+		class="org.romaframework.aspect.persistence.hibernate.test.TestApplicationConfiguration"
+		dependency-check="default" id="ApplicationConfiguration" lazy-init="default"
+		singleton="true">
+		<property name="applicationName">
+			<value>showcase</value>
+		</property>
+		<property name="applicationPackage">
+			<value>org.romaframework.showcase</value>
+		</property>
+		<property name="applicationDevelopment">
+			<value>true</value>
+		</property>
+		<property name="configuration">
+			<map />
+		</property>
+	</bean>
+</beans>
